@@ -1,0 +1,1 @@
+user.getUsername() + '@osc.edu';
