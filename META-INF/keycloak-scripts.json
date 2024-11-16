@@ -1,5 +1,11 @@
 {
-  "authenticators": [],
+  "authenticators": [
+    {
+      "name": "User Enabled Authenticator",
+      "fileName": "user-enabled-authenticator.js",
+      "description": "Allow only enabled users"
+    }
+  ],
   "policies": [],
   "mappers": [],
   "saml-mappers": [
