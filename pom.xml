@@ -23,7 +23,7 @@
     </dependencies>
 
     <build>
-        <finalName>osc-keycloak-scripts</finalName>
+        <finalName>osc-keycloak-scripts-${project.version}</finalName>
         <resources>
             <resource>
                 <directory>.</directory>
