@@ -4,6 +4,16 @@
       "name": "User Enabled Authenticator",
       "fileName": "user-enabled-authenticator.js",
       "description": "Allow only enabled users"
+    },
+    {
+      "name": "CSM Authenticator",
+      "fileName": "csm-authenticator.js",
+      "description": "CSM EmployeeStatus Authenticator"
+    },
+    {
+      "name": "Authorization Authenticator",
+      "fileName": "authorization-authenticator.js",
+      "description": "Authorization Authenticator"
     }
   ],
   "policies": [],
