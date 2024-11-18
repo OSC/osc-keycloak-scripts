@@ -15,7 +15,7 @@ function authenticate(context) {
   */
   if (client && (client.contains("service-now") || client.contains("class-dev"))) {
     var allowed = /(REQAPPROVAL|ACTIVE|WEBONLY|RESTRICTED)/;
-    var employeeStatus = user.getAttribute("employeeStatus");
+    var employeeStatus = user.getFirstAttribute("employeeStatus");
     if (employeeStatus && !allowed.test(employeeStatus)) {
       context.failure(AuthenticationFlowError.INVALID_USER);
       return;
@@ -24,7 +24,7 @@ function authenticate(context) {
     /*
       All other clients will authorize if the user account is not disabled or locked
     */
-    if (user.getAttribute("nsAccountLock") == "TRUE" || user.getAttribute("loginDisabled") == "TRUE") {
+    if (user.getFirstAttribute("nsAccountLock") == "TRUE" || user.getFirstAttribute("loginDisabled") == "TRUE") {
       context.failure(AuthenticationFlowError.INVALID_USER);
       return;
     }

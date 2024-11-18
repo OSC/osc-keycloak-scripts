@@ -4,7 +4,7 @@ function authenticate(context) {
 
   LOG.info(script.name + " --> trace auth for: " + user.username);
 
-  if (user.getAttribute("nsAccountLock") == "TRUE" || user.getAttribute("loginDisabled") == "TRUE") {
+  if (user.getFirstAttribute("nsAccountLock") == "TRUE" || user.getFirstAttribute("loginDisabled") == "TRUE") {
       context.failure(AuthenticationFlowError.INVALID_USER);
       return;
   }
