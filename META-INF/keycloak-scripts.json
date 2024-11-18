@@ -1,19 +1,9 @@
 {
   "authenticators": [
     {
-      "name": "User Enabled Authenticator",
-      "fileName": "user-enabled-authenticator.js",
-      "description": "Allow only enabled users"
-    },
-    {
-      "name": "CSM Authenticator",
-      "fileName": "csm-authenticator.js",
-      "description": "CSM EmployeeStatus Authenticator"
-    },
-    {
-      "name": "Authorization Authenticator",
+      "name": "OSC Authz Authenticator",
       "fileName": "authz-authenticator.js",
-      "description": "Authorization Authenticator"
+      "description": "OSC Authz Authenticator"
     }
   ],
   "policies": [],
