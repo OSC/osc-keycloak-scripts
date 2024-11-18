@@ -12,7 +12,7 @@
     },
     {
       "name": "Authorization Authenticator",
-      "fileName": "authorization-authenticator.js",
+      "fileName": "authz-authenticator.js",
       "description": "Authorization Authenticator"
     }
   ],
