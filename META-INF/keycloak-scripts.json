@@ -17,6 +17,11 @@
       "name": "User employeeStatus Enabled Mapper",
       "fileName": "status-mapper.js",
       "description": "User employeeStatus Enabled Mapper"
+    },
+    {
+      "name": "Special Groups Mapper",
+      "fileName": "special-groups-mapper.js",
+      "description": "Special Groups Mapper"
     }
   ],
   "saml-mappers": [
