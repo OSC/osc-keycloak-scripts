@@ -9,11 +9,11 @@ function authenticate(context) {
   var client = authenticationSession.getClient().getClientId();
   LOG.info(script.name + " evalute authorization for user=" + user.username + " client=" + client);
   /*
-    Use employeeStatus verification for service-now which allows some disabled
+    Use employeeStatus verification for *support.oh-tech.org which allows some disabled
     states to still authenticate.
     Also allow class-dev for testing purposes.
   */
-  if (client && (client.contains("service-now") || client.contains("class-dev"))) {
+  if (client && (client.contains("support.oh-tech.org") || client.contains("class-dev"))) {
     var allowed = /(REQAPPROVAL|ACTIVE|WEBONLY|RESTRICTED)/;
     var employeeStatus = user.getFirstAttribute("employeeStatus");
     if (employeeStatus && !allowed.test(employeeStatus)) {
