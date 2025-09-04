@@ -24,7 +24,10 @@ function authenticate(context) {
     /*
       All other clients will authorize if the user account is not disabled or locked
     */
-    if (user.getFirstAttribute("nsAccountLock") == "TRUE" || user.getFirstAttribute("loginDisabled") == "TRUE") {
+    if (user.getFirstAttribute("nsAccountLock") == "TRUE") {
+      context.failure(AuthenticationFlowError.CREDENTIAL_SETUP_REQUIRED);
+      return;
+    } else if (user.getFirstAttribute("loginDisabled") == "TRUE") {
       context.failure(AuthenticationFlowError.USER_DISABLED);
       return;
     }
