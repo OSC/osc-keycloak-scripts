@@ -12,7 +12,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-image:
@@ -23,6 +22,7 @@ jobs:
     outputs:
       image_tag: ${{ steps.meta.outputs.version }}
       image_digest: ${{ steps.build.outputs.digest }}
+      repo: ${{ steps.repo.outputs.name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -37,11 +37,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase repository name
+        id: repo
+        run: echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}
           tags: |
             type=sha,prefix=sha-
             type=ref,event=pr
@@ -50,14 +54,14 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: build/
           # Only push the final image on non-PR events (e.g., pushes to main)
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Pull and push layer cache to a dedicated tag in GHCR
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:buildcache,mode=max
   build-and-release:
     needs: build-image
     runs-on: ubuntu-latest
@@ -77,7 +81,7 @@ jobs:
 
       - name: Build package
         run: |
-          IMAGE_URI="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build-and-cache.outputs.image_digest }}"
+          IMAGE_URI="${{ env.REGISTRY }}/${{ needs.build-image.outputs.repo }}@${{ needs.build-image.outputs.image_digest }}"
           docker run --rm -it -v $(pwd):/build -w /build "$IMAGE_URI"  mvn clean package
 
       - name: Create GitHub Release and upload assets
