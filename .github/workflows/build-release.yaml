@@ -89,7 +89,7 @@ jobs:
 
       - name: Build package
         run: |
-          IMAGE_URI="${{ env.REGISTRY }}/${{ needs.build-image.outputs.repo }}@${{ needs.build-image.outputs.image_tag }}"
+          IMAGE_URI="${{ env.REGISTRY }}/${{ needs.build-image.outputs.repo }}:${{ needs.build-image.outputs.image_tag }}"
           make build-jar IMAGE="$IMAGE_URI" TAG="${{ env.VERSION }}"
 
       - name: Create GitHub Release and upload assets
