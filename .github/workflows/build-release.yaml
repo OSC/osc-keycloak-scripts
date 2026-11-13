@@ -56,8 +56,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: build/
-          # Only push the final image on non-PR events (e.g., pushes to main)
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Pull and push layer cache to a dedicated tag in GHCR
