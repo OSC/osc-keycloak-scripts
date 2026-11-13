@@ -6,12 +6,13 @@
 
     <groupId>edu.osc</groupId>
     <artifactId>osc-keycloak-scripts</artifactId>
-    <version>1.4.2</version>
+    <version>${revision}</version>
     <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21.0.0</java.version>
+        <revision>1.0.0-SNAPSHOT</revision>
     </properties>
 
     <dependencies>

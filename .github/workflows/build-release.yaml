@@ -1,0 +1,100 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - "main"
+    tags:
+      - '*'
+  pull_request:
+    branches:
+      - "main"
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+      image_digest: ${{ steps.build.outputs.digest }}
+      repo: ${{ steps.repo.outputs.name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Lowercase repository name
+        id: repo
+        run: echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}
+          tags: |
+            type=sha,prefix=sha-
+            type=ref,event=pr
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: build/
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Pull and push layer cache to a dedicated tag in GHCR
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}:buildcache,mode=max
+  build-and-release:
+    needs: build-image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set version tag or short SHA
+        run: |
+          if [ "${{ github.ref_type }}" == "tag" ]; then
+            echo "VERSION=${{ github.ref_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_SHA::7}" >> $GITHUB_ENV
+          fi
+
+      - name: Build package
+        run: |
+          IMAGE_URI="${{ env.REGISTRY }}/${{ needs.build-image.outputs.repo }}:${{ needs.build-image.outputs.image_tag }}"
+          make build-jar IMAGE="$IMAGE_URI" TAG="${{ env.VERSION }}"
+
+      - name: Upload assets
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" target/*.jar --clobber
